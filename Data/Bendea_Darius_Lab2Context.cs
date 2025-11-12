@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Bendea_Darius_Lab2.Models;
+
+namespace Bendea_Darius_Lab2.Data
+{
+    public class Bendea_Darius_Lab2Context : DbContext
+    {
+        public Bendea_Darius_Lab2Context (DbContextOptions<Bendea_Darius_Lab2Context> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Bendea_Darius_Lab2.Models.Book> Book { get; set; } = default!;
+        public DbSet<Bendea_Darius_Lab2.Models.Publisher> Publisher { get; set; } = default!;
+        public DbSet<Bendea_Darius_Lab2.Models.Author> Author { get; set; } = default!;
+    }
+}
