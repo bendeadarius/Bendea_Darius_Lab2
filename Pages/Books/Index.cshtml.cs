@@ -14,38 +14,34 @@ namespace Bendea_Darius_Lab2.Pages.Books
         {
             _context = context;
         }
+        public List<Author> Authors { get; set; }
+        public IList<Book> Book { get; set; }
+        public BookData BookD { get; set; }
+        public int BookID { get; set; }
+        public int CategoryID { get; set; }
 
-        public IList<Book> Book { get; set; } = default!;
-        public List<Author> Authors { get; set; } = default!;
-
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(int? id, int? categoryID)
         {
-            // Încarcă lista de autori pentru dropdown
-            Authors = await _context.Author.ToListAsync();
-
-            // Încarcă cărțile cu publisher și autor incluși
-            Book = await _context.Book
+            BookD = new BookData();
+            
+            BookD.Books = await _context.Book
                 .Include(b => b.Publisher)
                 .Include(b => b.Author)
+                .Include(b => b.BookCategories)
+                .ThenInclude(b => b.Category)
+                .AsNoTracking()
+                .OrderBy(b => b.Title)
                 .ToListAsync();
-        }
 
-        // Handler pentru actualizarea autorului
-        public async Task<IActionResult> OnPostUpdateAuthorAsync(int bookId, int? AuthorID)
-        {
-            // Găsește cartea după ID
-            var book = await _context.Book.FindAsync(bookId);
-            if (book == null)
+            Authors = await _context.Author.ToListAsync();
+
+            if (id != null)
             {
-                return NotFound();
+                BookID = id.Value;
+                Book book = BookD.Books
+                    .Where(i => i.ID == id.Value).Single();
+                BookD.Categories = book.BookCategories.Select(s => s.Category);
             }
-
-            // Actualizează autorul
-            book.AuthorID = AuthorID;
-            await _context.SaveChangesAsync();
-
-            // Redirecționează înapoi la pagină
-            return RedirectToPage();
         }
     }
 }
