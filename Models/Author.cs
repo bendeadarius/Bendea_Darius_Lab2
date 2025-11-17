@@ -16,6 +16,14 @@ namespace Bendea_Darius_Lab2.Models
 
         // Proprietate calculată - nu se salvează în baza de date
         [NotMapped]
-        public string FullName => $"{FirstName} {LastName}";
+        
+        [Display(Name = "Full Name")]
+        public string FullName
+        {
+            get
+            {
+                return FirstName + " " + LastName;
+            }
+        }
     }
 }
