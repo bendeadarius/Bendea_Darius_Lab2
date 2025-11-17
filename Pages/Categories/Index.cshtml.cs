@@ -1,29 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Bendea_Darius_Lab2.Data;
+using Bendea_Darius_Lab2.Models;
+using Bendea_Darius_Lab2.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Bendea_Darius_Lab2.Data;
-using Bendea_Darius_Lab2.Models;
 
 namespace Bendea_Darius_Lab2.Pages.Categories
 {
     public class IndexModel : PageModel
     {
-        private readonly Bendea_Darius_Lab2.Data.Bendea_Darius_Lab2Context _context;
+        private readonly Bendea_Darius_Lab2Context _context;
 
-        public IndexModel(Bendea_Darius_Lab2.Data.Bendea_Darius_Lab2Context context)
+        public IndexModel(Bendea_Darius_Lab2Context context)
         {
             _context = context;
         }
 
-        public IList<Category> Category { get;set; } = default!;
+        public CategoryIndexData CategoryData { get; set; }
+        public int CategoryID { get; set; }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(int? id)
         {
-            Category = await _context.Category.ToListAsync();
+            CategoryData = new CategoryIndexData();
+
+            // Încarcă categoriile cu cărțile asociate
+            CategoryData.Categories = await _context.Category
+                .Include(c => c.BookCategories)
+                .ThenInclude(bc => bc.Book)
+                .ThenInclude(b => b.Author)
+                .OrderBy(c => c.CategoryName)
+                .ToListAsync();
+
+            if (id != null)
+            {
+                CategoryID = id.Value;
+                Category category = CategoryData.Categories
+                    .FirstOrDefault(i => i.ID == id.Value);
+
+                if (category != null)
+                {
+                    // Extrage cărțile din categoria selectată
+                    CategoryData.Books = category.BookCategories
+                        .Select(bc => bc.Book)
+                        .ToList();
+                }
+            }
         }
     }
 }

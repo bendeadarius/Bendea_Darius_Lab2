@@ -22,6 +22,22 @@ namespace Bendea_Darius_Lab2.Pages.Books
         public string TitleSort { get; set; }
         public string AuthorSort { get; set; }
         public string CurrentFilter { get; set; }
+        public async Task<IActionResult> OnPostUpdateAuthorAsync(int bookId, int? AuthorID)
+        {
+            // Găsește cartea
+            var book = await _context.Book.FindAsync(bookId);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            // Actualizează autorul
+            book.AuthorID = AuthorID;
+            await _context.SaveChangesAsync();
+
+            // Redirecționează înapoi la pagină pentru a reîncărca datele
+            return RedirectToPage();
+        }
 
         public async Task OnGetAsync(int? id, int? categoryID, string sortOrder, string searchString)
         {
